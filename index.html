@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>年会抽奖系统</title>
+    <style>
+        body {
+						display: flex;
+					  flex-wrap: wrap; /* 允许子元素在必要时换行 */
+						align-items: center;
+					  justify-content: center; /* 子元素间隔均匀分布 */
+					  padding: 10px; /* 容器内边距 */
+            font-family: Arial, sans-serif;
+						background-image: url("./bj.png");
+						background-size: cover; /* 背景图片覆盖整个元素 */
+						background-repeat: no-repeat; /* 背景图片不重复 */
+						background-position: center; /* 背景图片居中 */
+            margin: 0px;
+            padding: 0px;
+            height: 100vh;
+        }
+				
+				.box-body{
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					justify-content: center;
+				}
+				
+        h1 {
+          font-size: 42px;
+          color: yellow;
+        }
+        .input-area, .controls {
+            margin-top: 10px;
+        }
+        input, button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            /* background-color: #007BFF; */
+						background-color: #ff0000;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+				.box-participants{
+					/* border: 1px solid yellow; */
+					border-radius: 35px;
+					background-color:rgba(121, 121, 121, 0.5);/*  */
+					display: flex;
+					align-items: center;
+					justify-content: space-around;
+					width: 1800px;
+					height: 750px;
+					overflow: hidden;
+					position: relative; /* 设置定位 */
+				}
+        ul {
+            list-style: none;
+            padding: 0px;
+						/* border: 1px solid white; */
+						display: flex;
+						flex-direction: column;
+						align-items: center;
+						justify-content: center;
+						width: 200px;
+						max-height: 100%;
+						min-height: 100%; /* 子容器最小高度为父容器的高度 */
+        }
+        li {
+						font-size: 30px;
+						height: 100%;
+						/* border: 1px solid green; */
+						max-height: 100%;
+						min-height: 100%; /* 子容器最小高度为父容器的高度 */
+						color: #07e2fa;
+        }
+				
+				
+				
+				
+				/* 弹窗背景遮罩样式 */
+				  .modal-mask {
+				    position: fixed;
+				    top: 0;
+				    left: 0;
+				    width: 100%;
+				    height: 100%;
+				    background: rgba(0, 0, 0, 0.7);
+				    display: flex;
+				    justify-content: center;
+				    align-items: center;
+				  }
+				 
+				  /* 弹窗容器样式 */
+				  .modal-content {
+				    background: rgba(121, 121, 121, 0.7);
+				    padding: 20px;
+				    border-radius: 5px;
+				    text-align: center;
+						width: 700px;
+						height: 400px;
+				  }
+				 
+				  /* 关闭按钮样式 */
+				  .modal-close {
+				    top: 0;
+				    right: 0;
+				    padding: 10px;
+				    cursor: pointer;
+				  }
+					
+					
+					.btn {
+					  cursor: pointer;
+					  margin: 5px;
+					  background-color: #ff0000;
+					  border: 1px solid #ddd;
+					  padding: 10px 20px;
+					  text-align: center;
+					  display: inline-block;
+					  font-size: 16px;
+					  transition: background-color 0.3s;
+					}
+					.active {
+					  background-color: #4CAF50;
+					  color: white;
+					}
+				
+    </style>
+</head>
+<body>
+	
+	<div class="box-body">
+	
+    <div>
+        <h1 style="text-align: center;margin-bottom: 10px;">年会抽奖系统</h1>
+				
+				
+				<div style="display: flex;align-items: center;justify-content: space-between;width: 1750px;">
+				<div>
+				<button class="btn" onclick="changeColor(this, 1)">特等奖</button>
+				<button class="btn" onclick="changeColor(this, 2)">一等奖</button>
+				<button class="btn" onclick="changeColor(this, 3)">二等奖</button>
+				<!-- <button class="btn" disabled onclick="changeColor(this, 4)">4</button> -->
+				<button class="btn" onclick="changeColor(this, 5)">三等奖</button>
+				</div>
+				<div class="controls">
+				    <!-- <button id="myButton" onclick="startLottery()">开始抽奖</button> -->
+						<button id="myButton" onclick="mybuttons()">开始抽奖</button>
+						<button disabled style="background-color: #CCC;color: #999;cursor: default;" id="myButton-two" onclick="stopbutton()">停止抽奖</button>
+				</div>
+				
+				
+				</div>
+		</div>
+				<div class="box-participants">
+					    <ul id="participantsList"></ul>
+					    <ul id="participantsList2"></ul>
+					    <ul id="participantsList3"></ul>
+					    <ul id="participantsList4"></ul>
+					    <ul id="participantsList5"></ul>
+				</div>
+				
+				<!-- // 获取localStorage中所有的键
+				const keys = Object.keys(localStorage);
+				 
+				// 遍历所有的键，并打印出键和值
+				keys.forEach((key) => {
+				  const value = localStorage.getItem(key);
+				  console.log(key, value);
+				}); -->
+				
+				
+				<div id="modal-mask" class="modal-mask" style="display:none;">
+				  <div class="modal-content">
+				    <span class="modal-close">&times;</span>
+				    <p id="zongjiangts" style="font-size: 45px;font-weight: bold;color: red;"></p>
+						<p id="zhognjiang" style="font-size: 39px;font-weight: bold;color: #07e2fa;margin: 70px 0px 0px 0px;letter-spacing: 3px;"></p>
+				  </div>
+				</div>
+				
+				
+				
+				
+				
+		</div>
+ 
+    <script>
+        var participants = ["胡起贤", "何镓宇", "成信敏", "马宝亮", "刘一星", "刘正伍", "吴湖荣", "罗濠", "郭品昭", "谢红",
+														"黄柱清", "李文通", "黎金英", "赵航", "郑瑜", "梁先昌", "陆杰", "刘春风", "李志豪", "胡荃宇",
+														"韦学卓", "何红晓", "陈桂强", "程海云", "李秋贤", "黄迎春", "赵玉华", "谢月圆", "张玉骏", "赵建璜",
+														"杨帆", "陈侯中", "李莎莎", "黄友", "陆锡远", "劳青妃", "辛海慧", "韦丽珍", "宁良兆", "方靖宇",
+														"谢太湖", "朱友林", "黎雪宁", "黄涛", "李勇军", "朱佳乐", "陆科臣", "黄彬明", "章年旺",
+														"黄玲曼", "罗玉情", "甘源", "杨建辉", "刘小聪", "上官帅源", "苏庆", "王贤成", "罗驰上", "梁青莲",
+														"时德奖", "方瑞宇", "叶恩恩", "蔡慧清", "李莹福", "周颖", "张爱晶", "马新达", "姚志鹏", "李倩",
+														"苏秋艳", "吴晓雯", "唐金如", "黄楠楠", "戴水凤", "莫启午", "胡雪妮", "万崇天"]; // 存储参与者列表
+        let rollingInterval;
+				var timerId = null;
+				var sum = 0;
+				var sss = 0;
+				
+				var arr1 = [];
+				var arr2 = [];
+				var arr3 = [];
+				var arr4 = [];
+				var arr5 = [];
+				
+				var result = [];
+ 
+        // 添加参与者
+        // function addParticipant() {
+        //     const input = document.getElementById('participant');
+        //     const name = input.value.trim();
+        //     if (name) {
+        //         participants.push(name);
+        //         updateParticipantsList();
+        //         input.value = '';
+        //     } else {
+        //         alert('请输入有效的名字！');
+        //     }
+        // }
+				
+				window.onload = function() {
+					updateParticipantsList();
+				};
+				
+				
+				function changeColor(btn, number) {
+				  // 移除所有按钮的active类
+				  document.querySelectorAll('.btn').forEach(function(btn) {
+				    btn.classList.remove('active');
+				  });
+				  
+				  // 给当前按钮添加active类
+				  btn.classList.add('active');
+					sss = number;
+				}
+				
+				
+				var thir = this;
+				
+			function mybuttons(){
+				
+				if(sss == 0){
+					window.alert("请先选择抽奖模式！");
+					return;
+				}
+				
+				const buttonn = document.getElementById('myButton');
+				buttonn.disabled = true;
+				buttonn.style.backgroundColor = '#CCC'; // 灰色的十六进制代码
+				buttonn.style.color = '#999'; // 与灰色背景相匹配的文字颜色
+				buttonn.style.cursor = 'default'; // 更改鼠标指针为默认样式
+				
+				const button_two = document.getElementById('myButton-two');
+				button_two.disabled = false;
+				button_two.style.backgroundColor = ''; // 灰色的十六进制代码
+				button_two.style.color = ''; // 与灰色背景相匹配的文字颜色
+				button_two.style.cursor = ''; // 更改鼠标指针为默认样式
+				
+				  var list = document.getElementById('participantsList');
+				  var list2 = document.getElementById('participantsList2');
+				  var list3 = document.getElementById('participantsList3');
+				  var list4 = document.getElementById('participantsList4');
+				  var list5 = document.getElementById('participantsList5');
+				  var lis = Array.from(list.getElementsByTagName("li"));
+					var lis2 = Array.from(list2.getElementsByTagName("li"));
+					var lis3 = Array.from(list3.getElementsByTagName("li"));
+					var lis4 = Array.from(list4.getElementsByTagName("li"));
+					var lis5 = Array.from(list5.getElementsByTagName("li"));
+					
+				 thir.timerId = setInterval(function() {
+				     // 使用Fisher-Yates shuffle算法打乱数组顺序
+				     for (var i = lis.length - 1; i > 0; i--) {
+				       var j = Math.floor(Math.random() * (i + 1));
+				       var temp = lis[i];
+				       lis[i] = lis[j];
+				       lis[j] = temp;
+				     }
+				     // 将打乱后的lis重新添加到列表中
+				     lis.forEach(function(li, index) {
+				       list.appendChild(li);
+				     });
+						 
+						 
+						 // 使用Fisher-Yates shuffle算法打乱数组顺序
+						 for (var i = lis2.length - 1; i > 0; i--) {
+						   var j = Math.floor(Math.random() * (i + 1));
+						   var temp = lis2[i];
+						   lis2[i] = lis2[j];
+						   lis2[j] = temp;
+						 }
+						 // 将打乱后的lis重新添加到列表中
+						 lis2.forEach(function(li, index) {
+						   list2.appendChild(li);
+						 });
+						 
+						 
+						 // 使用Fisher-Yates shuffle算法打乱数组顺序
+						 for (var i = lis3.length - 1; i > 0; i--) {
+						   var j = Math.floor(Math.random() * (i + 1));
+						   var temp = lis3[i];
+						   lis3[i] = lis3[j];
+						   lis3[j] = temp;
+						 }
+						 // 将打乱后的lis重新添加到列表中
+						 lis3.forEach(function(li, index) {
+						   list3.appendChild(li);
+						 });
+						 
+						 
+						 // 使用Fisher-Yates shuffle算法打乱数组顺序
+						 for (var i = lis4.length - 1; i > 0; i--) {
+						   var j = Math.floor(Math.random() * (i + 1));
+						   var temp = lis4[i];
+						   lis4[i] = lis4[j];
+						   lis4[j] = temp;
+						 }
+						 // 将打乱后的lis重新添加到列表中
+						 lis4.forEach(function(li, index) {
+						   list4.appendChild(li);
+						 });
+						 
+						 
+						 // 使用Fisher-Yates shuffle算法打乱数组顺序
+						 for (var i = lis5.length - 1; i > 0; i--) {
+						   var j = Math.floor(Math.random() * (i + 1));
+						   var temp = lis5[i];
+						   lis5[i] = lis5[j];
+						   lis5[j] = temp;
+						 }
+						 // 将打乱后的lis重新添加到列表中
+						 lis5.forEach(function(li, index) {
+						   list5.appendChild(li);
+						 });
+				 }, 70);
+					
+					};
+					
+				function stopbutton(){
+					// 关闭定时器
+					clearTimeout(thir.timerId);
+					const buttonn = document.getElementById('myButton');
+					buttonn.disabled = false;
+					buttonn.style.backgroundColor = ''; // 灰色的十六进制代码
+					buttonn.style.color = ''; // 与灰色背景相匹配的文字颜色
+					buttonn.style.cursor = ''; // 更改鼠标指针为默认样式
+					
+					document.getElementById('modal-mask').style.display = 'flex';
+					  
+					const sz = [arr1,arr2,arr3,arr4,arr5];
+						
+					const zjts	= document.getElementById("zongjiangts");
+					if(sss == 1){
+						
+						var twojiang = [];
+						while(true){
+							if(twojiang.length == 1){
+								break;
+							}
+							let s = Math.floor(Math.random() * 4);
+							twojiang.push(s);
+						}
+						
+						console.log(twojiang);
+						for(var i=0;i<twojiang.length;i++){
+							sjcy(sz[twojiang[i]],1);
+						}
+						
+						
+						zjts.textContent = "恭喜以下小伙伴荣获特等奖"
+					}else if(sss == 2){
+						
+						var twojiang = [];
+						while(true){
+							if(twojiang.length == 2){
+								break;
+							}
+							let s = Math.floor(Math.random() * 4);
+							twojiang.push(s);
+							twojiang = [...new Set(twojiang)];
+						}
+						console.log(twojiang);
+						for(var i=0;i<twojiang.length;i++){
+							sjcy(sz[twojiang[i]],1);
+						}
+						
+						
+						zjts.textContent = "恭喜以下小伙伴荣获一等奖"
+					}else if(sss == 3){
+						
+						var twojiang = [];
+						while(true){
+							if(twojiang.length == 3){
+								break;
+							}
+							let s = Math.floor(Math.random() * 4);
+							twojiang.push(s);
+							twojiang = [...new Set(twojiang)];
+						}
+						
+						console.log(twojiang);
+						for(var i=0;i<twojiang.length;i++){
+							sjcy(sz[twojiang[i]],1);
+						}
+						
+						zjts.textContent = "恭喜以下小伙伴荣获二等奖"
+					}else if(sss == 5){	
+						
+						for(var i=0;i<5;i++){
+							if(sz[i].length == 0){
+								let s = Math.floor(Math.random() * 5);
+								while(s == i){
+									s = Math.floor(Math.random() * 5);
+								}
+								sjcy(sz[s],1);
+							} else {
+								sjcy(sz[i],1);
+							}
+						}
+						
+						zjts.textContent = "恭喜以下小伙伴荣获三等奖"
+					}
+						
+						
+					
+					const zj = document.getElementById("zhognjiang");
+					zj.textContent = result;
+					sum = sum + 1;
+					localStorage.setItem("lsjl" + sum,result);
+					
+					
+					// participants = participants.filter(item => !result.includes(item));
+					arr1 = arr1.filter(item => !result.includes(item));
+					arr2 = arr2.filter(item => !result.includes(item));
+					arr3 = arr3.filter(item => !result.includes(item));
+					arr4 = arr4.filter(item => !result.includes(item));
+					arr5 = arr5.filter(item => !result.includes(item));
+					console.log(arr1,arr2,arr3,arr4,arr5)
+					
+					
+					
+					
+					const myButton_two = document.getElementById('myButton-two');
+					myButton_two.disabled = true;
+					myButton_two.style.backgroundColor = '#CCC'; // 灰色的十六进制代码
+					myButton_two.style.color = '#999'; // 与灰色背景相匹配的文字颜色
+					myButton_two.style.cursor = 'default'; // 更改鼠标指针为默认样式
+					
+					result = [];
+
+				}
+				
+				
+				
+				function sjcy(a,b){
+					const shuffled = a.slice().sort(() => 0.5 - Math.random());
+					for (let i = 0; i < 1; i++) {
+					  if (shuffled[i] !== undefined && result.indexOf(shuffled[i]) === -1) {
+					    result.push(shuffled[i]);
+					  }
+					}
+				}
+				
+				
+				
+				
+				
+				// 关闭弹窗的函数
+				  function closeModal() {
+				    document.getElementById('modal-mask').style.display = 'none';
+				  }
+					
+					  // 绑定关闭弹窗事件
+					  document.querySelector('.modal-close').addEventListener('click', closeModal);
+				
+ 
+        // 清空参与者
+        function clearParticipants() {
+            participants.length = 0;
+            updateParticipantsList();
+            document.getElementById('result').textContent = "等待抽奖结果...";
+        }
+ 
+        // 更新参与者列表
+        function updateParticipantsList() {
+            const list = document.getElementById('participantsList');
+						const list2 = document.getElementById('participantsList2');
+						const list3 = document.getElementById('participantsList3');
+						const list4 = document.getElementById('participantsList4');
+						const list5 = document.getElementById('participantsList5');
+            list.innerHTML = '';
+						list2.innerHTML = '';
+						list3.innerHTML = '';
+						list4.innerHTML = '';
+						list5.innerHTML = '';
+						p = [...new Set(participants)];
+            p.forEach((name, index) => {
+							if(index+1 <= 20){
+								const li = document.createElement('li');
+								li.textContent = `${name}`;
+								list.appendChild(li);
+								arr1.push(name);
+							}else if(index+1 >= 21 && index+1 <= 40){
+								const li2 = document.createElement('li');
+								li2.textContent = `${name}`;
+								list2.appendChild(li2);
+								arr2.push(name);
+							}else if(index+1 >= 41 && index+1 <= 60){
+								const li3 = document.createElement('li');
+								li3.textContent = `${name}`;
+								list3.appendChild(li3);
+								arr3.push(name);
+							}else if(index+1 >= 61 && index+1 <= 80){
+								const li4 = document.createElement('li');
+								li4.textContent = `${name}`;
+								list4.appendChild(li4);
+								arr4.push(name);
+							}else if(index+1 >= 81 && index+1 <= 100){
+								const li5 = document.createElement('li');
+								li5.textContent = `${name}`;
+								list5.appendChild(li5);
+								arr5.push(name);
+							}		
+            });
+        }
+ 
+        // 开始抽奖
+        function startLottery() {
+            const result = document.getElementById('result');
+            if (participants.length === 0) {
+                alert('请先添加参与者！');
+                return;
+            }
+ 
+            // 动态滚动效果
+            let currentIndex = 0;
+            result.textContent = '抽奖中...';
+            rollingInterval = setInterval(() => {
+                result.textContent = `当前选中: ${participants[currentIndex]}`;
+                currentIndex = (currentIndex + 1) % participants.length;
+            }, 100);
+ 
+            // 停止滚动并选出赢家
+            setTimeout(() => {
+                clearInterval(rollingInterval);
+                const winnerIndex = Math.floor(Math.random() * participants.length);
+                result.innerHTML = `恭喜 <span>${participants[winnerIndex]}</span> 中奖！`;
+            }, 3000); // 3秒后停止
+						
+        }
+    </script>
+</body>
+</html>
